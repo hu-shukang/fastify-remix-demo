@@ -1,0 +1,44 @@
+{
+  "name": "fastify-remix-demo",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "build": "remix vite:build && tsc --project ./tsconfig.server.json",
+    "dev": "cross-env NODE_ENV=development tsx --watch-path ./server/index.ts ./server/index.ts",
+    "format": "prettier --ignore-path .gitignore --ignore-unknown --cache --cache-location node_modules/.cache/prettiercache --write .",
+    "lint": "eslint --ignore-path .gitignore --no-error-on-unmatched-pattern --cache --cache-location node_modules/.cache/eslint --fix .",
+    "start": "cross-env NODE_ENV=production node ./server/index.js",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@fastify/middie": "^8.3.1",
+    "@fastify/static": "^7.0.4",
+    "@mcansh/remix-fastify": "3.4.0",
+    "@remix-run/node": "^2.12.1",
+    "@remix-run/react": "^2.12.1",
+    "@remix-run/server-runtime": "^2.12.1",
+    "cross-env": "^7.0.3",
+    "fastify": "^4.28.1",
+    "isbot": "^5.1.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.12.1",
+    "@remix-run/eslint-config": "^2.12.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/source-map-support": "^0.5.10",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.2",
+    "vite-tsconfig-paths": "^4.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
