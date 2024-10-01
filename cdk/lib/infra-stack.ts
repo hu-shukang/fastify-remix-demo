@@ -53,10 +53,12 @@ export class InfraStack extends cdk.Stack {
 
     const sourceAction = new codepipeline_actions.GitHubSourceAction({
       actionName: 'GitHub_Source',
-      owner: 'your-github-username',
-      repo: 'your-repo-name',
+      owner: 'hu-shukang',
+      repo: 'fastify-remix-demo',
       branch: envs.BRANCH,
-      oauthToken: cdk.SecretValue.secretsManager('github-token'),
+      oauthToken: cdk.SecretValue.secretsManager('github-token', {
+        jsonField: 'oauthToken',
+      }),
       output: sourceOutput,
       trigger: codepipeline_actions.GitHubTrigger.WEBHOOK,
       runOrder: 1,
