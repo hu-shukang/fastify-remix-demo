@@ -18,7 +18,9 @@ export class InfraStack extends cdk.Stack {
     );
 
     /** asset bucket */
-    const assetBucket = new s3.Bucket(this, envs.ASSET_BUCKET);
+    const assetBucket = new s3.Bucket(this, envs.ASSET_BUCKET, {
+      bucketName: envs.ASSET_BUCKET,
+    });
 
     const buildProject = new codebuild.PipelineProject(this, `${envs.APP_NAME}-build-${envs.ENV}`, {
       projectName: `${envs.APP_NAME}-build-${envs.ENV}`,
