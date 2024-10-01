@@ -12,7 +12,7 @@ export class InfraStack extends cdk.Stack {
 
     const codepipelineRole = iam.Role.fromRoleArn(
       this,
-      `${envs.APP_NAME}-codepipeline-role-${envs.env}`,
+      `${envs.APP_NAME}-codepipeline-role-${envs.ENV}`,
       envs.CODE_PIPELINE_ROLE_ARN,
       { mutable: false },
     );
@@ -20,8 +20,8 @@ export class InfraStack extends cdk.Stack {
     /** asset bucket */
     const assetBucket = new s3.Bucket(this, envs.ASSET_BUCKET);
 
-    const buildProject = new codebuild.PipelineProject(this, `${envs.APP_NAME}-build-${envs.env}`, {
-      projectName: `${envs.APP_NAME}-build-${envs.env}`,
+    const buildProject = new codebuild.PipelineProject(this, `${envs.APP_NAME}-build-${envs.ENV}`, {
+      projectName: `${envs.APP_NAME}-build-${envs.ENV}`,
       role: codepipelineRole,
       queuedTimeout: cdk.Duration.hours(0.5),
       timeout: cdk.Duration.hours(0.5),
@@ -36,14 +36,14 @@ export class InfraStack extends cdk.Stack {
           },
           SYNTH_TEMPLETE: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: `${envs.APP_NAME}-synth-template-${envs.env}.yaml`,
+            value: `${envs.APP_NAME}-synth-template-${envs.ENV}.yaml`,
           },
         },
       },
     });
 
-    const pipeline = new codepipeline.Pipeline(this, `${envs.APP_NAME}-pipeline-${envs.env}`, {
-      pipelineName: `${envs.APP_NAME}-pipeline-${envs.env}`,
+    const pipeline = new codepipeline.Pipeline(this, `${envs.APP_NAME}-pipeline-${envs.ENV}`, {
+      pipelineName: `${envs.APP_NAME}-pipeline-${envs.ENV}`,
       artifactBucket: assetBucket,
       role: codepipelineRole,
     });
@@ -75,9 +75,9 @@ export class InfraStack extends cdk.Stack {
 
     const deployAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
       actionName: 'CloudFormation-CreateUpdateStack',
-      stackName: `${envs.APP_NAME}-${envs.env}`,
+      stackName: `${envs.APP_NAME}-${envs.ENV}`,
       adminPermissions: true,
-      templatePath: buildOutput.atPath(`${envs.APP_NAME}-synth-template-${envs.env}.yaml`),
+      templatePath: buildOutput.atPath(`${envs.APP_NAME}-synth-template-${envs.ENV}.yaml`),
       deploymentRole: codepipelineRole,
       replaceOnFailure: true,
       role: codepipelineRole,

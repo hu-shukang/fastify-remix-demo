@@ -4,3 +4,4 @@ node_modules
 /build
 /public/build
 server/index.js
+cdk.out
