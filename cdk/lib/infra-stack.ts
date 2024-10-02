@@ -22,6 +22,11 @@ export class InfraStack extends cdk.Stack {
       bucketName: envs.ASSET_BUCKET,
     });
 
+    /** web bucket */
+    const webBucket = new s3.Bucket(this, envs.WEB_BUCKET, {
+      bucketName: envs.WEB_BUCKET,
+    });
+
     const buildProject = new codebuild.PipelineProject(this, `${envs.APP_NAME}-build-${envs.ENV}`, {
       projectName: `${envs.APP_NAME}-build-${envs.ENV}`,
       role: codepipelineRole,
@@ -99,6 +104,16 @@ export class InfraStack extends cdk.Stack {
     pipeline.addStage({
       stageName: 'Deploy',
       actions: [deployAction],
+    });
+
+    new cdk.CfnOutput(this, `${envs.ASSET_BUCKET}-arn`, {
+      value: assetBucket.bucketArn,
+      exportName: `${envs.ASSET_BUCKET}-arn`,
+    });
+
+    new cdk.CfnOutput(this, `${envs.WEB_BUCKET}-arn`, {
+      value: webBucket.bucketArn,
+      exportName: `${envs.WEB_BUCKET}-arn`,
     });
   }
 }

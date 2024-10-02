@@ -11,7 +11,9 @@
     "start": "cross-env ENV=prod node ./server/index.js",
     "typecheck": "tsc",
     "cdk:deploy:infra:it": "cdk deploy InfraStack-it -c env=it",
-    "cdk:synth:infra:it": "cdk synth InfraStack-it -c env=it"
+    "cdk:synth:infra:it": "cdk synth InfraStack-it -c env=it",
+    "cdk:deploy:lambda:it": "cdk deploy LambdaStack-it -c env=it",
+    "cdk:synth:lambda:it": "cdk synth LambdaStack-it --require-approval never -c env=it"
   },
   "dependencies": {
     "@fastify/autoload": "^6.0.1",
@@ -49,7 +51,6 @@
     "jest": "^29.7.0",
     "prettier": "^3.2.5",
     "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
     "tsx": "^4.16.2",
     "typescript": "^5.6.2",
     "vite": "^5.3.2",

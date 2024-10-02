@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { InfraStack } from '../lib/infra-stack';
+import { LambdaStack } from '../lib/lambda-stack';
 
 const app = new cdk.App();
 const env = app.node.tryGetContext('env') as string;
@@ -21,6 +22,15 @@ const synthesizer = new cdk.CliCredentialsStackSynthesizer({
 
 new InfraStack(app, `InfraStack-${envs.ENV}`, envs, {
   stackName: `InfraStack-${envs.ENV}`,
+  synthesizer: synthesizer,
+  env: {
+    account: envs.AWS_ACCOUNT,
+    region: envs.REGION,
+  },
+});
+
+new LambdaStack(app, `LambdaStack-${envs.ENV}`, envs, {
+  stackName: `LambdaStack-${envs.ENV}`,
   synthesizer: synthesizer,
   env: {
     account: envs.AWS_ACCOUNT,
