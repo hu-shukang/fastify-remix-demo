@@ -22,7 +22,7 @@ phases:
       # 打包 Lambda 函数代码
       - echo "Building Lambda..."
       - mkdir tmp_zip
-      - cp -r /build/server/* tmp_zip/
+      - cp -r ${CODEBUILD_SRC_DIR}/build/server/* tmp_zip/
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
       - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/artifact/server.zip .
