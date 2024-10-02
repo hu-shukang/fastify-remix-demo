@@ -37,6 +37,10 @@ export class InfraStack extends cdk.Stack {
         buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
         computeType: codebuild.ComputeType.SMALL,
         environmentVariables: {
+          APP_NAME: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: envs.APP_NAME,
+          },
           ENV: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: envs.ENV,
@@ -44,6 +48,10 @@ export class InfraStack extends cdk.Stack {
           SYNTH_TEMPLETE: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: `${envs.APP_NAME}-synth-template-${envs.ENV}.yaml`,
+          },
+          WEB_BUCKET: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: webBucket.bucketName,
           },
         },
       },

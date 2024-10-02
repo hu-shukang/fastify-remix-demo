@@ -9,19 +9,24 @@ phases:
       - npm run lint
       - mkdir artifact
       - npm run cdk:synth:lambda:${ENV} > ./artifact/${SYNTH_TEMPLETE}
+      - export layerS3LocationName="${APP_NAME}-layer-${ENV}-s3-location"
+      - export layerS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$layerS3LocationName'].Value" --output text)
+      - export serverLambdaS3LocationName="${APP_NAME}-server-lambda-${ENV}-s3-location"
+      - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
   build:
     commands:
       - npm run build
       # upload static files to s3
-      - cd ${CODEBUILD_SRC_DIR}/build/client && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
-      - cd ${CODEBUILD_SRC_DIR} && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
-      - aws s3 cp ${CODEBUILD_SRC_DIR}/client.zip s3://$S3_BUCKET_NAME/$S3_KEY --acl bucket-owner-full-control
+      # - cd ${CODEBUILD_SRC_DIR}/build/client && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
+      # - cd ${CODEBUILD_SRC_DIR} && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
+      - aws s3 sync build/client s3://$WEB_BUCKET/ --delete --acl bucket-owner-full-control
+      # - aws s3 cp ${CODEBUILD_SRC_DIR}/client.zip s3://$S3_BUCKET_NAME/$S3_KEY --acl bucket-owner-full-control
       # upload server files to s3
-      - mkdir tmp_zip
-      - cp -r /build/server/* tmp_zip/
-      - cp server/index.js tmp_zip/
-      - cp server/lambda.js tmp_zip/
-      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/server.zip .
+      # - mkdir tmp_zip
+      # - cp -r /build/server/* tmp_zip/
+      # - cp server/index.js tmp_zip/
+      # - cp server/lambda.js tmp_zip/
+      # - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/server.zip .
       # # 获取 CloudFormation export value
       # - export EXPORT_NAME="your-export-name-here"
       # - export EXPORT_VALUE=$(aws cloudformation list-exports --query "Exports[?Name=='$EXPORT_NAME'].Value" --output text)
