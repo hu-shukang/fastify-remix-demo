@@ -8,30 +8,38 @@ phases:
     commands:
       - npm run lint
       - mkdir artifact
-      - npm run cdk:synth:lambda:${ENV} > ./artifact/${SYNTH_TEMPLETE}
-      - export layerS3LocationName="${APP_NAME}-layer-${ENV}-s3-location"
-      - export layerS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$layerS3LocationName'].Value" --output text)
-      - export serverLambdaS3LocationName="${APP_NAME}-server-lambda-${ENV}-s3-location"
-      - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
+      - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV > ./artifact/${SYNTH_TEMPLETE}
+      # - export layerS3LocationName="${APP_NAME}-layer-${ENV}-s3-location"
+      # - export layerS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$layerS3LocationName'].Value" --output text)
+      # - export serverLambdaS3LocationName="${APP_NAME}-server-lambda-${ENV}-s3-location"
+      # - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
   build:
     commands:
       - npm run build
-      # upload static files to s3
-      # - cd ${CODEBUILD_SRC_DIR}/build/client && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
-      # - cd ${CODEBUILD_SRC_DIR} && zip -r ${CODEBUILD_SRC_DIR}/client.zip .
+      # 打包静态文件
+      - echo "Upload Static Files..."
       - aws s3 sync build/client s3://$WEB_BUCKET/ --delete --acl bucket-owner-full-control
-      # - aws s3 cp ${CODEBUILD_SRC_DIR}/client.zip s3://$S3_BUCKET_NAME/$S3_KEY --acl bucket-owner-full-control
-      # upload server files to s3
-      # - mkdir tmp_zip
-      # - cp -r /build/server/* tmp_zip/
-      # - cp server/index.js tmp_zip/
-      # - cp server/lambda.js tmp_zip/
-      # - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/server.zip .
-      # # 获取 CloudFormation export value
-      # - export EXPORT_NAME="your-export-name-here"
-      # - export EXPORT_VALUE=$(aws cloudformation list-exports --query "Exports[?Name=='$EXPORT_NAME'].Value" --output text)
-      # - echo "Exported Value: $EXPORT_VALUE"
+      # 打包 Lambda 函数代码
+      - echo "Building Lambda..."
+      - mkdir tmp_zip
+      - cp -r /build/server/* tmp_zip/
+      - cp server/index.js tmp_zip/
+      - cp server/lambda.js tmp_zip/
+      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/artifact/server.zip .
+
+      # 打包 Layer
+      - echo "Building Lambda Layer..."
+      - mkdir -p ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
+      - cp -rf ${CODEBUILD_SRC_DIR}/package-lock.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
+      - cp -rf ${CODEBUILD_SRC_DIR}/package.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
+      - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
+      - npm ci --omit=dev
+      - cd -p ${CODEBUILD_SRC_DIR}/artifact/layer
+      - zip -r ${CODEBUILD_SRC_DIR}/artifact/layer.zip nodejs
+
 artifacts:
   files:
     - ${SYNTH_TEMPLETE}
+    - server.zip
+    - layer.zip
   base-directory: artifact
