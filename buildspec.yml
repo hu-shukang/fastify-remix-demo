@@ -27,7 +27,7 @@ phases:
       - cp server/lambda.js tmp_zip/
       - cp package.json tmp_zip/
       - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server-${TIMESTAMP}.zip .
-      - aws s3 cp server.zip s3://$ASSET_BUCKET/server.zip --acl bucket-owner-full-control
+      - aws s3 cp server.zip s3://$ASSET_BUCKET/server-${TIMESTAMP}.zip --acl bucket-owner-full-control
 
       # 打包 Layer
       - echo "Building Lambda Layer..."
@@ -37,7 +37,7 @@ phases:
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
       - npm ci --omit=dev
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -r layer-${TIMESTAMP}.zip nodejs
-      - aws s3 cp layer.zip s3://$ASSET_BUCKET/layer.zip --acl bucket-owner-full-control
+      - aws s3 cp layer.zip s3://$ASSET_BUCKET/layer-${TIMESTAMP}.zip --acl bucket-owner-full-control
       - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV -c timestamp=$TIMESTAMP > ./artifact/${SYNTH_TEMPLETE}
 
 artifacts:
