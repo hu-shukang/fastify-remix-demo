@@ -34,7 +34,7 @@ phases:
       - cp -rf ${CODEBUILD_SRC_DIR}/package.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
       - npm ci --omit=dev
-      - cd -p ${CODEBUILD_SRC_DIR}/artifact/layer
+      - cd ${CODEBUILD_SRC_DIR}/artifact/layer
       - zip -r ${CODEBUILD_SRC_DIR}/artifact/layer.zip nodejs
 
 artifacts:
