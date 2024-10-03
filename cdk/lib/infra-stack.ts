@@ -53,6 +53,10 @@ export class InfraStack extends cdk.Stack {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: webBucket.bucketName,
           },
+          ASSET_BUCKET: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: assetBucket.bucketName,
+          },
         },
       },
     });

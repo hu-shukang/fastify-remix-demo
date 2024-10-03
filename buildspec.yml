@@ -15,6 +15,7 @@ phases:
       # - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
   build:
     commands:
+      - export ASSET_BUCKET=fastify-remix-asset-it
       - npm run build
       # 打包静态文件
       - echo "Upload Static Files..."
@@ -25,7 +26,8 @@ phases:
       - cp -r ${CODEBUILD_SRC_DIR}/build/server/* tmp_zip/
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
-      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r ${CODEBUILD_SRC_DIR}/artifact/server.zip .
+      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server.zip .
+      - aws s3 cp server.zip s3://$ASSET_BUCKET/server.zip --acl bucket-owner-full-control
 
       # 打包 Layer
       - echo "Building Lambda Layer..."
@@ -34,12 +36,10 @@ phases:
       - cp -rf ${CODEBUILD_SRC_DIR}/package.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
       - npm ci --omit=dev
-      - cd ${CODEBUILD_SRC_DIR}/artifact/layer
-      - zip -r ${CODEBUILD_SRC_DIR}/artifact/layer.zip nodejs
+      - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -r layer.zip nodejs
+      - aws s3 cp layer.zip s3://$ASSET_BUCKET/layer.zip --acl bucket-owner-full-control
 
 artifacts:
   files:
     - ${SYNTH_TEMPLETE}
-    - server.zip
-    - layer.zip
   base-directory: artifact
