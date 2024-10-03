@@ -8,7 +8,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export class LambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, envs: Record<string, string>, props?: cdk.StackProps) {
     super(scope, id, props);
-
+    const timestamp = this.node.tryGetContext('timestamp') as string;
     const lambdaRole = iam.Role.fromRoleArn(this, `${envs.APP_NAME}-lambda-role-${envs.ENV}`, envs.LAMBDA_ROLE_ARN, {
       mutable: false,
     });
@@ -20,13 +20,13 @@ export class LambdaStack extends cdk.Stack {
     const layer = new lambda.LayerVersion(this, `${envs.APP_NAME}-layer-${envs.ENV}`, {
       layerVersionName: `${envs.APP_NAME}-layer-${envs.ENV}`,
       compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
-      code: lambda.Code.fromBucket(assetBucket, 'layer.zip'),
+      code: lambda.Code.fromBucket(assetBucket, `layer-${timestamp}.zip`),
     });
 
     const serverLambda = new lambda.Function(this, `${envs.APP_NAME}-server-${envs.ENV}`, {
       functionName: `${envs.APP_NAME}-server-${envs.ENV}`,
       description: `${envs.APP_NAME}-server-${envs.ENV}`,
-      code: lambda.Code.fromBucket(assetBucket, 'server.zip'),
+      code: lambda.Code.fromBucket(assetBucket, `server-${timestamp}.zip`),
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'lambda.handler',
       layers: [layer],

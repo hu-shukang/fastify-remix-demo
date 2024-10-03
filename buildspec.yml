@@ -8,13 +8,13 @@ phases:
     commands:
       - npm run lint
       - mkdir artifact
-      - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV > ./artifact/${SYNTH_TEMPLETE}
       # - export layerS3LocationName="${APP_NAME}-layer-${ENV}-s3-location"
       # - export layerS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$layerS3LocationName'].Value" --output text)
       # - export serverLambdaS3LocationName="${APP_NAME}-server-lambda-${ENV}-s3-location"
       # - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
   build:
     commands:
+      - TIMESTAMP=$(date +%s)
       - npm run build
       # 打包静态文件
       - echo "Upload Static Files..."
@@ -25,7 +25,8 @@ phases:
       - cp -r build/server/* tmp_zip/build/server/
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
-      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server.zip .
+      - cp package.json tmp_zip/
+      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server-${TIMESTAMP}.zip .
       - aws s3 cp server.zip s3://$ASSET_BUCKET/server.zip --acl bucket-owner-full-control
 
       # 打包 Layer
@@ -35,8 +36,9 @@ phases:
       - cp -rf ${CODEBUILD_SRC_DIR}/package.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
       - npm ci --omit=dev
-      - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -r layer.zip nodejs
+      - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -r layer-${TIMESTAMP}.zip nodejs
       - aws s3 cp layer.zip s3://$ASSET_BUCKET/layer.zip --acl bucket-owner-full-control
+      - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV -c timestamp=$TIMESTAMP > ./artifact/${SYNTH_TEMPLETE}
 
 artifacts:
   files:
