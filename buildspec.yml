@@ -15,15 +15,14 @@ phases:
       # - export serverLambdaS3LocationValue=$(aws cloudformation list-exports --query "Exports[?Name=='$serverLambdaS3LocationName'].Value" --output text)
   build:
     commands:
-      - export ASSET_BUCKET=fastify-remix-asset-it
       - npm run build
       # 打包静态文件
       - echo "Upload Static Files..."
       - aws s3 sync build/client s3://$WEB_BUCKET/ --delete --acl bucket-owner-full-control
       # 打包 Lambda 函数代码
       - echo "Building Lambda..."
-      - mkdir tmp_zip
-      - cp -r ${CODEBUILD_SRC_DIR}/build/server/* tmp_zip/
+      - mkdir -p tmp_zip/build/server
+      - cp -r build/server/* tmp_zip/build/server/
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
       - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server.zip .
