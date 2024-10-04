@@ -69,9 +69,7 @@ export class LambdaStack extends cdk.Stack {
       },
       // 添加针对静态文件的行为，指向 S3
       additionalBehaviors: {
-        '*.js': staticBehavior,
-        '*.css': staticBehavior,
-        '*.ico': staticBehavior,
+        '/assets/*': staticBehavior,
       },
     });
   }
