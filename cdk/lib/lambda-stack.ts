@@ -55,12 +55,13 @@ export class LambdaStack extends cdk.Stack {
       viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
     };
-
+    const apiGatewayDomainName = new URL(api.url).hostname;
+    const apiGatewayPath = `${apiGatewayDomainName}/${envs.ENV}`;
     // 创建 CloudFront 分配
     new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
       // 默认行为，用于所有非静态文件的请求，指向 Lambda
       defaultBehavior: {
-        origin: new origins.HttpOrigin(api.url, {
+        origin: new origins.HttpOrigin(apiGatewayPath, {
           protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, // 强制 HTTPS
@@ -74,7 +75,7 @@ export class LambdaStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, `${envs.WEB_BUCKET}-api-url`, {
-      value: api.url,
+      value: apiGatewayPath,
       exportName: `${envs.WEB_BUCKET}-api-url`,
     });
   }
