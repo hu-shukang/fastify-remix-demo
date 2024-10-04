@@ -1,12 +1,12 @@
 import process from 'node:process';
-// import { remixFastify } from '@mcansh/remix-fastify';
+import { remixFastify } from '@mcansh/remix-fastify';
 import { fastify } from 'fastify';
 
 export const app = fastify();
-
-// await app.register(remixFastify);
-
-app.get('/', async function handler(request, reply) {
+console.log('start remix');
+await app.register(remixFastify);
+console.log('end remix');
+app.get('/hello', async function handler(request, reply) {
   return { hello: 'world' };
 });
 
