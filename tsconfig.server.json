@@ -6,5 +6,8 @@
   "compilerOptions": {
     "noEmit": false,
     "outDir": "./server"
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
   }
 }
