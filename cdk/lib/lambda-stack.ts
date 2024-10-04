@@ -4,8 +4,8 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-// import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-// import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 
 export class LambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, envs: Record<string, string>, props?: cdk.StackProps) {
@@ -20,8 +20,8 @@ export class LambdaStack extends cdk.Stack {
     const assetBucket = s3.Bucket.fromBucketArn(this, envs.ASSET_BUCKET, assetBucketArn);
 
     /* web bucket */
-    // const webBucketArn = cdk.Fn.importValue(`${envs.WEB_BUCKET}-arn`);
-    // const webBucket = s3.Bucket.fromBucketArn(this, envs.WEB_BUCKET, webBucketArn);
+    const webBucketArn = cdk.Fn.importValue(`${envs.WEB_BUCKET}-arn`);
+    const webBucket = s3.Bucket.fromBucketArn(this, envs.WEB_BUCKET, webBucketArn);
 
     const layer = new lambda.LayerVersion(this, `${envs.APP_NAME}-layer-${envs.ENV}`, {
       layerVersionName: `${envs.APP_NAME}-layer-${envs.ENV}`,
@@ -50,32 +50,29 @@ export class LambdaStack extends cdk.Stack {
       deployOptions: { stageName: envs.ENV },
     });
 
-    // const staticBehavior: cloudfront.BehaviorOptions = {
-    //   origin: origins.S3BucketOrigin.withBucketDefaults(webBucket),
-    //   viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    //   cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-    // };
-    const apiGatewayPath = `${api.domainName?.domainName}/${envs.ENV}`;
-    // 创建 CloudFront 分配
-    // new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
-    //   // 默认行为，用于所有非静态文件的请求，指向 Lambda
-    //   defaultBehavior: {
-    //     origin: new origins.HttpOrigin(apiGatewayPath, {
-    //       protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
-    //     }),
-    //     viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, // 强制 HTTPS
-    //   },
-    //   // 添加针对静态文件的行为，指向 S3
-    //   additionalBehaviors: {
-    //     '*.js': staticBehavior,
-    //     '*.css': staticBehavior,
-    //     '*.ico': staticBehavior,
-    //   },
-    // });
+    const staticBehavior: cloudfront.BehaviorOptions = {
+      origin: origins.S3BucketOrigin.withBucketDefaults(webBucket),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+    };
 
-    new cdk.CfnOutput(this, `${envs.WEB_BUCKET}-api-url`, {
-      value: apiGatewayPath,
-      exportName: `${envs.WEB_BUCKET}-api-url`,
+    const apiGatewayDomainName = new URL(api.url).hostname;
+    // 创建 CloudFront 分配
+    new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
+      // 默认行为，用于所有非静态文件的请求，指向 Lambda
+      defaultBehavior: {
+        origin: new origins.HttpOrigin(apiGatewayDomainName, {
+          originPath: `/${envs.ENV}`,
+          protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, // 强制 HTTPS
+      },
+      // 添加针对静态文件的行为，指向 S3
+      additionalBehaviors: {
+        '*.js': staticBehavior,
+        '*.css': staticBehavior,
+        '*.ico': staticBehavior,
+      },
     });
   }
 }
