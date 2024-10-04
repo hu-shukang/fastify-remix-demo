@@ -1,9 +1,6 @@
 import process from 'node:process';
 import { remixFastify } from '@mcansh/remix-fastify';
 import { fastify } from 'fastify';
-import sourceMapSupport from 'source-map-support';
-
-sourceMapSupport.install();
 
 export const app = fastify();
 
