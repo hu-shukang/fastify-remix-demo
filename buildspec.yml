@@ -38,7 +38,8 @@ phases:
       - npm ci --omit=dev
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -rq· layer-${TIMESTAMP}.zip nodejs
       - aws s3 cp layer-${TIMESTAMP}.zip s3://$ASSET_BUCKET/layer-${TIMESTAMP}.zip --acl bucket-owner-full-control
-      - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV -c timestamp=$TIMESTAMP > ./artifact/${SYNTH_TEMPLETE}
+      - cd ${CODEBUILD_SRC_DIR}
+      - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV -c timestamp=$TIMESTAMP > ${CODEBUILD_SRC_DIR}/artifact/${SYNTH_TEMPLETE}
 
 artifacts:
   files:
