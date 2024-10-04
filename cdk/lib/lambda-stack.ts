@@ -50,13 +50,24 @@ export class LambdaStack extends cdk.Stack {
       deployOptions: { stageName: envs.ENV },
     });
 
+    const apiGatewayDomainName = `${api.restApiId}.execute-api.${this.region}.amazonaws.com`;
+    const oai = new cloudfront.OriginAccessIdentity(this, `${envs.APP_NAME}-oai-${envs.ENV}`);
+
     const staticBehavior: cloudfront.BehaviorOptions = {
-      origin: origins.S3BucketOrigin.withBucketDefaults(webBucket),
+      origin: origins.S3BucketOrigin.withOriginAccessIdentity(webBucket, { originAccessIdentity: oai }),
       viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
     };
 
-    const apiGatewayDomainName = `${api.restApiId}.execute-api.${this.region}.amazonaws.com`;
+    // 允许 OAI 访问 S3 存储桶
+    webBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [webBucket.arnForObjects('*')],
+        principals: [new iam.CanonicalUserPrincipal(oai.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
+      }),
+    );
+
     // 创建 CloudFront 分配
     new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
       // 默认行为，用于所有非静态文件的请求，指向 Lambda
