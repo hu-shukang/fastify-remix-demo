@@ -60,13 +60,7 @@ export class LambdaStack extends cdk.Stack {
     };
 
     // 允许 OAI 访问 S3 存储桶
-    webBucket.addToResourcePolicy(
-      new iam.PolicyStatement({
-        actions: ['s3:GetObject'],
-        resources: [webBucket.arnForObjects('*')],
-        principals: [new iam.CanonicalUserPrincipal(oai.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
-      }),
-    );
+    webBucket.grantRead(oai);
 
     // 创建 CloudFront 分配
     new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
