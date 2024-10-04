@@ -26,7 +26,7 @@ phases:
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
       - cp package.json tmp_zip/
-      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -r server-${TIMESTAMP}.zip .
+      - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -rq· server-${TIMESTAMP}.zip .
       - aws s3 cp server-${TIMESTAMP}.zip s3://$ASSET_BUCKET/server-${TIMESTAMP}.zip --acl bucket-owner-full-control
 
       # 打包 Layer
@@ -36,7 +36,7 @@ phases:
       - cp -rf ${CODEBUILD_SRC_DIR}/package.json ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs/
       - cd ${CODEBUILD_SRC_DIR}/artifact/layer/nodejs
       - npm ci --omit=dev
-      - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -r layer-${TIMESTAMP}.zip nodejs
+      - cd ${CODEBUILD_SRC_DIR}/artifact/layer && zip -rq· layer-${TIMESTAMP}.zip nodejs
       - aws s3 cp layer-${TIMESTAMP}.zip s3://$ASSET_BUCKET/layer-${TIMESTAMP}.zip --acl bucket-owner-full-control
       - npx cdk synth LambdaStack-$ENV --require-approval never -c env=$ENV -c timestamp=$TIMESTAMP > ./artifact/${SYNTH_TEMPLETE}
 
