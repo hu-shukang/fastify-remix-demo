@@ -55,8 +55,7 @@ export class LambdaStack extends cdk.Stack {
       viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
     };
-    const apiGatewayDomainName = new URL(api.url).hostname;
-    const apiGatewayPath = `${apiGatewayDomainName}/${envs.ENV}`;
+    const apiGatewayPath = `${api.domainName?.domainName}/${envs.ENV}`;
     // 创建 CloudFront 分配
     new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
       // 默认行为，用于所有非静态文件的请求，指向 Lambda
