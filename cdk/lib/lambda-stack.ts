@@ -33,7 +33,7 @@ export class LambdaStack extends cdk.Stack {
       environment: envs,
       role: lambdaRole,
       timeout: cdk.Duration.minutes(15),
-      memorySize: 512,
+      memorySize: 2048,
     });
 
     // 创建 API Gateway
