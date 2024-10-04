@@ -56,7 +56,7 @@ export class LambdaStack extends cdk.Stack {
       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
     };
 
-    const apiGatewayDomainName = new URL(api.url).hostname;
+    const apiGatewayDomainName = `${api.restApiId}.execute-api.${this.region}.amazonaws.com`;
     // 创建 CloudFront 分配
     new cloudfront.Distribution(this, `${envs.APP_NAME}-cloudfront-${envs.ENV}`, {
       // 默认行为，用于所有非静态文件的请求，指向 Lambda
