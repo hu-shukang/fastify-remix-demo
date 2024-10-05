@@ -25,7 +25,7 @@ phases:
       - cp -r build/server/* tmp_zip/build/server/
       - cp server/index.js tmp_zip/
       - cp server/lambda.js tmp_zip/
-      # - cp package.json tmp_zip/
+      - cp package.json tmp_zip/
       - cd ${CODEBUILD_SRC_DIR}/tmp_zip && zip -rq server-${TIMESTAMP}.zip .
       - aws s3 cp server-${TIMESTAMP}.zip s3://$ASSET_BUCKET/server-${TIMESTAMP}.zip --acl bucket-owner-full-control
 
