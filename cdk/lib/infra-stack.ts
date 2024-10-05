@@ -65,6 +65,7 @@ export class InfraStack extends cdk.Stack {
       pipelineName: `${envs.APP_NAME}-pipeline-${envs.ENV}`,
       artifactBucket: assetBucket,
       role: codepipelineRole,
+      pipelineType: codepipeline.PipelineType.V1,
     });
 
     const sourceOutput = new codepipeline.Artifact();
